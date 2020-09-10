@@ -1,7 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const mongoose = require('mongoose');
 const app = express();
+
+const Post = require('./models/post');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -14,31 +16,50 @@ app.use((req, res, next) => {
     next();
 })
 
-app.post('api/posts', (req, res, next) => {
-    const post = req.body;
+
+try {
+    mongoose.connect("mongodb+srv://mwsock:Bartolini2.@meancluster-hrniw.mongodb.net/AngularCourse?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true }, () =>
+        console.log("connected"));
+} catch (error) {
+    console.log("could not connect");
+}
+
+console.log(mongoose.connection.readyState);
+
+app.post('/api/posts', (req, res, next) => {
+    console.log('Any')
+    const post = new Post({
+        title: req.body.title,
+        content: req.body.content
+    });
     console.log(post);
-    res.status(201).json({
-        message: 'Post added successfully!'
+
+    post.save().then(result => {
+        res.status(201).json({
+            message: 'Post added successfully!',
+            postId: createdPost._id
+        });
+
     })
 })
 
-app.use('/api/posts', (req, res, next) => {
+app.get('/api/posts', (req, res, next) => {
 
-    const post = [
-        {
-            id: 1,
-            title: 'Some Content1',
-            content: 'Some Author1'
-        },
-        {
-            id: 2,
-            title: 'Some Content2',
-            content: 'Some Author2'
-        }
-    ]
-
-
-    res.status(200).json({ message: 'Hello there!', posts: post });
+    Post.find()
+        .then(documents => {
+            res.status(200).json({
+                message: 'Hello there!',
+                posts: documents
+            })
+        });
 });
+
+app.delete('/api/posts/:id', (req, res, next) => {
+    //console.log(req.params.id);
+    Post.deleteOne({ _id: req.params.id }).then(result => {
+        //  console.log('Deleted!')
+        res.status(200).json({ message: 'Post Deleted!' }) //THIS SENDS INFO 'BOUT postId - idk how it works xD
+    });
+})
 
 module.exports = app;

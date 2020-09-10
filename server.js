@@ -49,4 +49,6 @@ app.set("port", port);
 const server = http.createServer(app);
 server.on("error", onError);
 server.on("listening", onListening);
+console.log('localhost:3000');
 server.listen(port);
+
