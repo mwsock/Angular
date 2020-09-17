@@ -1,8 +1,9 @@
-import { Post } from '../posts/post.model';
-import { Subject } from 'rxjs';
+import { Post, PostX } from '../posts/post.model';
+import { Subject, Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { Content } from '@angular/compiler/src/render3/r3_ast';
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
@@ -34,8 +35,11 @@ export class PostService {
         return this.postsUpdated.asObservable();
     }
 
-    getPost(id: string) {
-        return { ...this.posts.find(p => p.id === id) };
+
+
+    getPost(id: string): Observable<PostX> {
+        console.log('http://localhost:3000/api/posts/' + id)
+        return this.http.get<PostX>('http://localhost:3000/api/posts/' + id);
     }
 
     addPost(title: String, content: String) {
@@ -47,6 +51,18 @@ export class PostService {
                 this.posts.push(post);
                 this.postsUpdated.next([...this.posts]);
             })
+    };
+
+    updatePost(id: string, title: string, content: string) {
+        const post: Post = { id: id, title: title, content: content }
+        this.http.put('http://localhost:3000/api/posts/' + id, post)
+            .subscribe(response => {
+                const updatedPosts = [...this.posts];
+                const oldPostIndex = updatedPosts.findIndex(p => p.id === post.id);
+                updatedPosts[oldPostIndex] = post;
+                this.posts = updatedPosts;
+                this.postsUpdated.next([...this.posts]);
+            });
     };
 
     deletePost(postId: string) {
