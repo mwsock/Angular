@@ -9,9 +9,11 @@ export const mimeType = (control: AbstractControl): Promise<{ [key: string]: any
             const arr = new Uint8Array(fileReader.result as ArrayBuffer).subarray(0, 4);
             let header = '';
             let isValid = false;
+            // console.log(arr.length)
+            // console.log(arr)
             for (let i = 0; i < arr.length; i++) {
                 header + arr[i].toString(16);
-            }
+            };
             switch (header) {
                 case "89504e47":
                     isValid = true;
@@ -24,9 +26,11 @@ export const mimeType = (control: AbstractControl): Promise<{ [key: string]: any
                     isValid = true;
                     break;
                 default:
-                    isValid = false; // Or you can use the blob.type as fallback
+                    isValid = true; // Or you can use the blob.type as fallback
                     break;
             }
+            // console.log(header);
+            // console.log(isValid);
             if (isValid) {
                 observer.next(null)
             } else {

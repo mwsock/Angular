@@ -3,7 +3,6 @@ import { FormGroup, FormControl, Validators } from "@angular/forms";
 import { Post } from '../post.model';
 import { PostService } from '../post.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { ThrowStmt } from '@angular/compiler';
 import { mimeType } from './mime-type.validator';
 
 import { Router } from '@angular/router';
@@ -46,7 +45,8 @@ export class PostCreateComponent implements OnInit {
           this.post = {
             id: postData.post.id,
             title: postData.post.title,
-            content: postData.post.content
+            content: postData.post.content,
+            imagePath: null
           };
           // this.form.get['title'].setValue = (this.post.title);
           // this.form.get['content'].setValue = (this.post.content);
@@ -78,11 +78,12 @@ export class PostCreateComponent implements OnInit {
 
   onSavePost() {
     if (this.form.invalid) {
+      console.log('INVALID FORM')
       return;
     };
     this.isLoading = true;
     if (this.mode === 'create') {
-      this.postsService.addPost(this.form.value.title, this.form.value.content);
+      this.postsService.addPost(this.form.value.title, this.form.value.content, this.form.value.image);
     } else {
       this.postsService.updatePost(this.postId, this.form.value.title, this.form.value.content);
     };
